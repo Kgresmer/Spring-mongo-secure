@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 import repository.RoleRepository;
 import repository.UserRepository;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -54,10 +51,19 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
+    // for each role create an authority
+    //
     private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {
         Set<GrantedAuthority> roles = new HashSet<>();
         userRoles.forEach((role) -> {
             roles.add(new SimpleGrantedAuthority(role.getRole()));
         });
+
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>(roles);
+        return grantedAuthorities;
+    }
+
+    private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 }
